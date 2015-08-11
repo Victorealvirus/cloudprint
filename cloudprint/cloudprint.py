@@ -76,9 +76,9 @@ class CloudPrintAuth(object):
         self.exp_time = None
         self.refresh_token = None
         self._access_token = None
-	self.site = 'Armooo-PrintProxy'
-	self.prefix = False
-	self.proxy = platform.node() + '-' + self.site
+        self.site = 'Armooo-PrintProxy'
+        self.prefix = False
+        self.proxy = platform.node() + '-' + self.site
 
     @property
     def session(self):
@@ -198,7 +198,7 @@ class CloudPrintProxy(object):
     def __init__(self, auth):
         self.auth = auth
         self.sleeptime = 0
-	self.site = ""
+        self.site = ""
         self.include = []
         self.exclude = []
 
@@ -210,8 +210,7 @@ class CloudPrintProxy(object):
                 'proxy': self.auth.guid,
             },
         ).json()
-
-	return [PrinterProxy(self, p['id'], re.sub('^' + self.site + '-','', p['name']))for p in printers['printers']]
+        return [PrinterProxy(self, p['id'], re.sub('^' + self.site + '-','', p['name']))for p in printers['printers']]
 
     def delete_printer(self, printer_id):
         self.auth.session.post(
@@ -225,43 +224,42 @@ class CloudPrintProxy(object):
 
     def add_printer(self, name, description, ppd):
         if self.prefix:
-		name = self.site + '-' + name
-		self.auth.session.post(
-	            PRINT_CLOUD_URL + 'register',
-	            {
-        	        'output': 'json',
-                	'printer': name,
-        	        'proxy':  self.auth.guid,
-               		'capabilities': ppd.encode('utf-8'),
-	                'defaults': ppd.encode('utf-8'),
-	                'status': 'OK',
-	                'description': description,
-	                'capsHash': hashlib.sha1(ppd.encode('utf-8')).hexdigest(),
-	           },
-	        ).raise_for_status()
-	        LOGGER.debug('Added Printer ' + name)
-	#remove once done
-	
+            name = self.site + '-' + name
+        self.auth.session.post(
+            PRINT_CLOUD_URL + 'register',
+            {
+                'output': 'json',
+                'printer': name,
+                'proxy':  self.auth.guid,
+                'capabilities': ppd.encode('utf-8'),
+                'defaults': ppd.encode('utf-8'),
+                'status': 'OK',
+                'description': description,
+                'capsHash': hashlib.sha1(ppd.encode('utf-8')).hexdigest(),
+           },
+        ).raise_for_status()
+        LOGGER.debug('Added Printer ' + name)
+
+
     def update_printer(self, printer_id, name, description, ppd):
-         if self.prefix:
-		name = self.site + '-' + name
-		self.auth.session.post(
-           	PRINT_CLOUD_URL + 'update',
-           	{
-              	 	'output': 'json',
-                	'printerid': printer_id,
-                	'printer': name,
-                	'proxy': self.auth.guid,
-                	'capabilities': ppd.encode('utf-8'),
-                	'defaults': ppd.encode('utf-8'),
-                	'status': 'OK',
-                	'description': description,
-                	'capsHash': hashlib.sha1(ppd.encode('utf-8')).hexdigest(),
-           	},
-        	).raise_for_status()
-       		LOGGER.debug('Updated Printer ' + name)
-	# remove once done
-	
+        if self.prefix:
+            name = self.site + '-' + name
+        self.auth.session.post(
+            PRINT_CLOUD_URL + 'update',
+            {
+                'output': 'json',
+                'printerid': printer_id,
+                'printer': name,
+                'proxy': self.auth.guid,
+                'capabilities': ppd.encode('utf-8'),
+                'defaults': ppd.encode('utf-8'),
+                'status': 'OK',
+                'description': description,
+                'capsHash': hashlib.sha1(ppd.encode('utf-8')).hexdigest(),
+           },
+        ).raise_for_status()
+        LOGGER.debug('Updated Printer ' + name)
+
 
     def get_jobs(self, printer_id):
         docs = self.auth.session.post(
@@ -440,10 +438,10 @@ def main():
                         help='exclude local printers matching %(metavar)s')
     parser.add_argument('-v', dest='verbose', action='store_true',
                         help='verbose logging')
-    parser.add_argument('-s', dest='site', default='Armooo-PrintProxy', 
+    parser.add_argument('-s', dest='site',
                         help='unique sitename that will be a prefix to the printers')
     args = parser.parse_args()
-
+    
     # if daemon, log to syslog, otherwise log to stdout
     if args.daemon:
         handler = logging.handlers.SysLogHandler()
@@ -479,7 +477,7 @@ def main():
     cpp.include = args.include
     cpp.exclude = args.exclude
     if cpp.site != args.site:
-	cpp.prefix = True
+        cpp.prefix = True
     cpp.site = args.site
     cpp.proxy = platform.node() + '-' + args.site
     
